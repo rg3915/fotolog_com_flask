@@ -3,10 +3,15 @@ import os
 import json
 import sys
 
+from PIL import Image
+
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask.ext.login import LoginManager, UserMixin, login_user, login_required, logout_user
 
 from werkzeug import secure_filename
+
+import images
+
 
 app = Flask(__name__)
 
@@ -18,6 +23,7 @@ login_manager.login_message = "Por favor, faça o login"
 login_manager.login_message_category = "info"
 
 USER_DIR = "data/users"
+IMAGE_DIR = "data/images"
 PWD_SALT = b"secretsalt"
 
 app.secret_key = "secretkey"
@@ -25,6 +31,19 @@ app.secret_key = "secretkey"
 @app.route("/")
 def index():
     return render_template("index.html")
+
+@app.route("/upload",methods=["GET", "POST"])
+def upload_image():
+    form = images.ImageForm()
+    if form.validate_on_submit():
+        image_name = secure_filename(form.image.data.filename)
+        image_path = (IMAGE_DIR + "/" + image_name).encode(sys.getfilesystemencoding() or "utf-8")
+        form.image.data.save(open(image_path, "wb"))
+        flash("Image uploaded")
+        print(request.files)
+        return redirect(url_for("upload_image"))
+    return render_template("upload_image.html", form=form)
+
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
