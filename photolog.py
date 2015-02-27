@@ -2,18 +2,24 @@ import hashlib, base64
 import os
 import json
 import sys
+import random
 
 from PIL import Image
 
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask.ext.login import LoginManager, UserMixin, login_user, login_required, logout_user
 
+from flask.ext.sqlalchemy import SQLAlchemy
+
 from werkzeug import secure_filename
 
-import images
+
 
 
 app = Flask(__name__)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data/data.db'
+db = SQLAlchemy(app)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -36,9 +42,12 @@ def index():
 def upload_image():
     form = images.ImageForm()
     if form.validate_on_submit():
-        image_name = secure_filename(form.image.data.filename)
+        image_name = str(random.randint(1000000, 10000000))  + "_" +  secure_filename(form.image.data.filename)
         image_path = (IMAGE_DIR + "/" + image_name).encode(sys.getfilesystemencoding() or "utf-8")
         form.image.data.save(open(image_path, "wb"))
+        img = images.ImageModel(form.name.data, form.description.data or "", image_name, form.tags.data)
+        db.session.add(img)
+        db.session.commit()
         flash("Image uploaded")
         print(request.files)
         return redirect(url_for("upload_image"))
@@ -109,7 +118,7 @@ class User(UserMixin):
         self.nome = kw.pop("nome", "")
         super().__init__()
 
-
+import images
 
 if __name__ == "__main__":
     app.run(debug=True)
