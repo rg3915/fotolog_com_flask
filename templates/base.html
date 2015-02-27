@@ -13,12 +13,15 @@
         {% endwith %}
         <ul>
             <li><a href="{{ url_for('register') }}" >Cadastre-se</a></li>
-            <li>Entre</li>
+            <li><a href="{{ url_for('login') }}" >Entre</a></li>
             <li>Subir fotos</li>
             <li>Navegar</li>
-            <li>Sair</li>
+            <li><a href="{{ url_for('logout') }}" >Sair</a></li>
         </ul>
         {% endblock %}
+        {% if current_user.is_authenticated() %}
+            <span class="userid">Logado como <strong> {{current_user.id }}</strong></span>
+        {% endif %}
 
         {% block content %}
             Template base
