@@ -10,6 +10,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 from flask.ext.login import LoginManager, UserMixin, login_user, login_required, logout_user
 
 from flask.ext.sqlalchemy import SQLAlchemy
+from flask_bootstrap import Bootstrap
 
 from werkzeug import secure_filename
 
@@ -17,6 +18,7 @@ from werkzeug import secure_filename
 
 
 app = Flask(__name__)
+Bootstrap(app)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data/data.db'
 db = SQLAlchemy(app)
@@ -39,6 +41,7 @@ def index():
     return render_template("index.html")
 
 @app.route("/upload",methods=["GET", "POST"])
+@login_required
 def upload_image():
     form = images.ImageForm()
     if form.validate_on_submit():

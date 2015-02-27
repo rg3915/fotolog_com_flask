@@ -1,7 +1,25 @@
-<!DOCTYPE html>
-<html>
-    <body>
-        {% block navigation %}
+{% extends "bootstrap/base.html" %}
+
+    {% block head %}
+    {{super()}}
+    <link href="static/photolog.css" rel="stylesheet" type="text/css">
+    {% endblock %}
+
+    {% block navbar %}
+    <div class="navbar">
+            <ul class="nav navbar-nav">
+                <li><a href="{{ url_for('register') }}" >Cadastre-se</a></li>
+                <li><a href="{{ url_for('login') }}" >Entre</a></li>
+                <li><a href="{{ url_for('upload_image')}}">Subir fotos</a></li>
+                <li><a href="#">Navegar</a></li>
+                <li><a href="{{ url_for('logout') }}" >Sair</a></li>
+            </ul>
+        {% if current_user.is_authenticated() %}
+            <span class="userid navbar-text">Logado como <strong> {{current_user.id }}</strong></span>
+        {% endif %}
+    </div>
+    {% endblock %}
+    {% block content %}
         {% with messages = get_flashed_messages() %}
             {% if messages %}
                 <ul class=flashes>
@@ -11,25 +29,14 @@
                 </ul>
             {% endif %}
         {% endwith %}
-        <ul>
-            <li><a href="{{ url_for('register') }}" >Cadastre-se</a></li>
-            <li><a href="{{ url_for('login') }}" >Entre</a></li>
-            <li><a href="{{ url_for('upload_image')}}">Subir fotos</li>
-            <li>Navegar</li>
-            <li><a href="{{ url_for('logout') }}" >Sair</a></li>
-        </ul>
-        {% endblock %}
-        {% if current_user.is_authenticated() %}
-            <span class="userid">Logado como <strong> {{current_user.id }}</strong></span>
-        {% endif %}
 
-        {% block content %}
+
+        {% block photolog_content %}
             Template base
         {% endblock %}
+    {% endblock %}
 
-        <footer>
-            <p>Copyright 2015 - João S. O. Bueno</p>
-            <p>Feito com <a href="http://flask.pocoo.org/">Flask</a></p>
-        </footer>
-    </body>
-</html>
+    <footer>
+        <p>Copyright 2015 - João S. O. Bueno</p>
+        <p>Feito com <a href="http://flask.pocoo.org/">Flask</a></p>
+    </footer>
