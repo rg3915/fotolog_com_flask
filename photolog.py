@@ -12,8 +12,15 @@ from flask.ext.login import LoginManager, UserMixin, login_user, login_required,
 
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap
+<<<<<<< HEAD
 
 from werkzeug import secure_filename
+=======
+
+from werkzeug import secure_filename
+
+
+>>>>>>> c67622bc5d4dc5a061b4692f2af7251843b1b733
 
 
 app = Flask(__name__)
@@ -40,6 +47,7 @@ app.secret_key = "secretkey"
 def index():
     return render_template("index.html")
 
+<<<<<<< HEAD
 
 @app.route("/image/<id>")
 def raw_image(id):
@@ -54,16 +62,26 @@ def raw_image(id):
 
 
 @app.route("/upload", methods=["GET", "POST"])
+=======
+@app.route("/upload",methods=["GET", "POST"])
+>>>>>>> c67622bc5d4dc5a061b4692f2af7251843b1b733
 @login_required
 def upload_image():
     form = images.ImageForm()
     if form.validate_on_submit():
+<<<<<<< HEAD
         image_name = str(random.randint(1000000, 10000000)) + \
             "_" + secure_filename(form.image.data.filename)
         image_path = get_image_path(image_name)
         form.image.data.save(open(image_path, "wb"))
         img = images.ImageModel(
             form.name.data, form.description.data or "", image_name, form.tags.data)
+=======
+        image_name = str(random.randint(1000000, 10000000))  + "_" +  secure_filename(form.image.data.filename)
+        image_path = (IMAGE_DIR + "/" + image_name).encode(sys.getfilesystemencoding() or "utf-8")
+        form.image.data.save(open(image_path, "wb"))
+        img = images.ImageModel(form.name.data, form.description.data or "", image_name, form.tags.data)
+>>>>>>> c67622bc5d4dc5a061b4692f2af7251843b1b733
         db.session.add(img)
         db.session.commit()
         flash("Image uploaded")
@@ -140,10 +158,13 @@ class User(UserMixin):
         self.nome = kw.pop("nome", "")
         super().__init__()
 
+<<<<<<< HEAD
 
 def get_image_path(image_name):
     return (IMAGE_DIR + "/" + image_name).encode(sys.getfilesystemencoding() or "utf-8")
 
+=======
+>>>>>>> c67622bc5d4dc5a061b4692f2af7251843b1b733
 import images
 
 if __name__ == "__main__":
