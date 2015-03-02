@@ -4,10 +4,6 @@
     <form action="{{ url_for('upload_image') }}" method="post" enctype="multipart/form-data" >
     <table>
     {% for field in form %}
-<<<<<<< HEAD
-=======
-        {% if field.name != 'csrf_token' %}
->>>>>>> c67622bc5d4dc5a061b4692f2af7251843b1b733
         <tr>
             <td>{{ field.label }}</td>
             <td >{{ field }}</td>

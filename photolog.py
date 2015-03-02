@@ -4,6 +4,10 @@ import os
 import json
 import sys
 import random
+try:
+    from io import BytesIO
+except ImportError:
+    from cStringIO import StringIO as BytesIO
 
 from PIL import Image
 
@@ -12,15 +16,7 @@ from flask.ext.login import LoginManager, UserMixin, login_user, login_required,
 
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap
-<<<<<<< HEAD
-
 from werkzeug import secure_filename
-=======
-
-from werkzeug import secure_filename
-
-
->>>>>>> c67622bc5d4dc5a061b4692f2af7251843b1b733
 
 
 app = Flask(__name__)
@@ -47,41 +43,53 @@ app.secret_key = "secretkey"
 def index():
     return render_template("index.html")
 
-<<<<<<< HEAD
 
-@app.route("/image/<id>")
-def raw_image(id):
+@app.route("/image/<int:id>", defaults={"size": None})
+@app.route("/image/<int:id>/<int:size>")
+def raw_image(id, size):
     # raise Exception
     try:
         image = db.session.query(images.ImageModel).get(id)
         image_path = get_image_path(image.filename)
-        data = open(image_path, "rb").read()  # b para dados binários
+        # data = open(image_path, "rb").read()  # b para dados binários
+        img_obj = Image.open(image_path)
     except (TypeError, AttributeError, IOError):
         return render_template('404.html'), 404
-    return Response(data, mimetype=image.get_mime())
+    width, height = img_obj.size
+    if size:
+        if img_obj.mode == "P":
+            img_obj = img_obj.convert("RGBA")
+        width, height = (size, int(height * size / width)
+                         ) if width > height else (int(widget * size / height), size)
+        thumbnail = img_obj.resize((width, height), Image.ANTIALIAS)
+        mime = "image/jpeg"
+    else:
+        thumbnail = img_obj
+        mime = image.get_mime()
+    stream = BytesIO()
+    thumbnail.save(stream, format="jpeg")
+    stream.seek(0)
+    return Response(stream.read(), mimetype=mime)
+
+
+@app.route("/browse")
+def browse():
+    image_set = db.session.query(images.ImageModel).all()
+    return render_template("images.html", images=image_set)
 
 
 @app.route("/upload", methods=["GET", "POST"])
-=======
-@app.route("/upload",methods=["GET", "POST"])
->>>>>>> c67622bc5d4dc5a061b4692f2af7251843b1b733
 @login_required
 def upload_image():
     form = images.ImageForm()
     if form.validate_on_submit():
-<<<<<<< HEAD
         image_name = str(random.randint(1000000, 10000000)) + \
             "_" + secure_filename(form.image.data.filename)
-        image_path = get_image_path(image_name)
+        image_path = (
+            IMAGE_DIR + "/" + image_name).encode(sys.getfilesystemencoding() or "utf-8")
         form.image.data.save(open(image_path, "wb"))
         img = images.ImageModel(
             form.name.data, form.description.data or "", image_name, form.tags.data)
-=======
-        image_name = str(random.randint(1000000, 10000000))  + "_" +  secure_filename(form.image.data.filename)
-        image_path = (IMAGE_DIR + "/" + image_name).encode(sys.getfilesystemencoding() or "utf-8")
-        form.image.data.save(open(image_path, "wb"))
-        img = images.ImageModel(form.name.data, form.description.data or "", image_name, form.tags.data)
->>>>>>> c67622bc5d4dc5a061b4692f2af7251843b1b733
         db.session.add(img)
         db.session.commit()
         flash("Image uploaded")
@@ -158,13 +166,10 @@ class User(UserMixin):
         self.nome = kw.pop("nome", "")
         super().__init__()
 
-<<<<<<< HEAD
 
 def get_image_path(image_name):
     return (IMAGE_DIR + "/" + image_name).encode(sys.getfilesystemencoding() or "utf-8")
 
-=======
->>>>>>> c67622bc5d4dc5a061b4692f2af7251843b1b733
 import images
 
 if __name__ == "__main__":
